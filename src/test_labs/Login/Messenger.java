@@ -10,6 +10,7 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.io.*;
 import java.util.Scanner;
+import java.util.concurrent.TimeUnit;
 
 public class Messenger extends JFrame {
     private JPanel MessagePanel;
@@ -22,7 +23,7 @@ public class Messenger extends JFrame {
 
     private final String FILE_NAME = "users.txt";
 
-    public Messenger() throws IOException {
+    public Messenger() throws IOException, InterruptedException {
         setTitle("Dashboard");
         setContentPane(MessagePanel);
         setMinimumSize(new Dimension(500, 500));
@@ -65,8 +66,26 @@ public class Messenger extends JFrame {
         btnSendText.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (user != null) {
+                String result, input;
+//                TODO THIS IS BUTTON TO SEND DATA
+                input = textInputField.getText().toString();
 
+                displayMessage(user.getName(), input);
+
+                try {
+                    result = helper.getEcho(input);
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
+
+                displayMessage("Server>", result);
+
+                if (input.equals("end")) {
+                    try {
+                        helper.done();
+                    } catch (IOException ex) {
+                        throw new RuntimeException(ex);
+                    }
                 }
             }
         });
@@ -83,6 +102,11 @@ public class Messenger extends JFrame {
             while (!done) {
                 System.out.println("Enter a line to receive an echo from the server");
                 textArea.setText("Enter a line to receive an echo from the server");
+
+                TimeUnit.SECONDS.sleep(10);
+
+                textArea.setText("");
+
                 message = textInputField.getText();
                 if ((message.trim()).equals(endMessage)) {
                     done = true;
@@ -184,7 +208,7 @@ public class Messenger extends JFrame {
         } else System.out.println("Operation Rename Failed");
     }
 
-    private void startProcess() throws IOException {
+    private void startProcess() throws IOException, InterruptedException {
 
 
 //        Get to know user
@@ -198,7 +222,11 @@ public class Messenger extends JFrame {
         freeFile(FILE_NAME);
 
 //        Display message to the user
-        displayMessage("Hello " + user.getName() + " !!!\n\n" + "Select one of the options:\n\n" + "#1 - Display a numbers from a string\n" + "#2 - Display a string without numbers\n" + "#3 - Display all your inputs");
+        displayMessage("", "Hello " + user.getName() + " !!!\n\n" + "Select one of the options:\n\n" + "#1 - Display a numbers from a string\n" + "#2 - Display a string without numbers\n" + "#3 - Display all your inputs");
+
+        TimeUnit.SECONDS.sleep(3);
+
+        textArea.setText("");
 
         textInputField.setText("Input your choice here");
         textInputField.addFocusListener(new FocusListener() {
@@ -217,11 +245,11 @@ public class Messenger extends JFrame {
 
     }
 
-    private void createConnection(String host, String port) {
+    private void createConnection(String host, String port) throws InterruptedException {
         String err_message = "";
-        boolean error = false;
+
         String message = err_message + "\n" +
-                "Solutions:\n\n" +
+                "\n\n" +
                 "1.\tTerminate this app, and \n" +
                 "Try to run the Server\n\n" +
                 "2.\tHost name or port number\n" +
@@ -231,19 +259,31 @@ public class Messenger extends JFrame {
         } catch (IOException e) {
             err_message = e.getMessage();
             System.out.println("Error: " + err_message + "\n");
-            error = true;
         }
 
 //        textInputField.replaceSelection(message);
         textArea.replaceSelection(message);
 
+        displayMessage("", "If there is no connection try next steps:");
+
         System.out.println("last one: " + message);
+
+        TimeUnit.SECONDS.sleep(2);
+
+        textArea.setText("");
 
     }
 
-    private void displayMessage(String text) {
+    private void displayMessage(String actor, String text) {
 
-        textArea.setText("Server> " + text + "\n");
+        textArea.setEditable(true);
+
+        if (actor == "") {
+            textArea.replaceSelection("Message> " + text + "\n");
+        } else textArea.replaceSelection(actor + "> " + text + "\n");
+
+//        textArea.replaceSelection("Version 2 Server> " + text + "\n");
+        textArea.setEditable(false);
     }
 
     private static int countWords(String filename) throws FileNotFoundException {
@@ -277,7 +317,7 @@ public class Messenger extends JFrame {
     }
 
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, InterruptedException {
         Messenger messanger = new Messenger();
 
 
