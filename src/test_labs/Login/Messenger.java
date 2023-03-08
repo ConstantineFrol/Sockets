@@ -17,6 +17,7 @@ public class Messenger extends JFrame {
     private JTextArea textArea;
     private JTextField textInputField;
     private JButton btnSendText;
+    private JScrollPane scrollPane;
     private User user;
 
     private EchoClientHelper2 helper;
@@ -24,7 +25,7 @@ public class Messenger extends JFrame {
     private final String FILE_NAME = "users.txt";
 
     public Messenger() throws IOException, InterruptedException {
-        setTitle("Dashboard");
+        setTitle("Messenger");
         setContentPane(MessagePanel);
         setMinimumSize(new Dimension(500, 500));
         setSize(800, 800);
@@ -32,8 +33,9 @@ public class Messenger extends JFrame {
 
 
         freeFile(FILE_NAME);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         btnSendText.setEnabled(false);
-        textArea.setEditable(false);
 
         boolean userProof = getProof(FILE_NAME);
 
@@ -67,7 +69,7 @@ public class Messenger extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String result, input;
-//                TODO THIS IS BUTTON TO SEND DATA
+
                 input = textInputField.getText().toString();
 
                 displayMessage(user.getName(), input);
@@ -222,9 +224,9 @@ public class Messenger extends JFrame {
         freeFile(FILE_NAME);
 
 //        Display message to the user
-        displayMessage("", "Hello " + user.getName() + " !!!\n\n" + "Select one of the options:\n\n" + "#1 - Display a numbers from a string\n" + "#2 - Display a string without numbers\n" + "#3 - Display all your inputs");
+        displayMessage("", "Hello " + user.getName() + " !!!\n\n" + "Available commands:\nHELP - display commands,\nSTR FILTER - return a string,\nNUM FILTER - return digits,\nHISTORY - return all inputs, \nEND/QUIT - disconnect from a server.");
 
-        TimeUnit.SECONDS.sleep(3);
+        TimeUnit.SECONDS.sleep(8);
 
         textArea.setText("");
 
@@ -278,11 +280,12 @@ public class Messenger extends JFrame {
 
         textArea.setEditable(true);
 
+//        TODO IF STRING CONTAINS ERROR DO.... ELSE IF CONTAINS HISTORY PRINT BEAUTIFUL WAY, ELSE PRINT NORMAL(LINE 285)
+
         if (actor == "") {
             textArea.replaceSelection("Message> " + text + "\n");
         } else textArea.replaceSelection(actor + "> " + text + "\n");
 
-//        textArea.replaceSelection("Version 2 Server> " + text + "\n");
         textArea.setEditable(false);
     }
 

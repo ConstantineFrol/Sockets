@@ -2,10 +2,10 @@ package test_labs.Login;
 
 public class User {
 
-    public String name;
-    public String password;
-    public String host;
-    public String port;
+    private String name;
+    private String password;
+    private String host;
+    private String port;
 
 
     public void setName(String name) {

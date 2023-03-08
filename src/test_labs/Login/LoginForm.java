@@ -125,7 +125,7 @@ public class LoginForm extends JDialog {
         User user = loginForm.user;
 
         if (user != null) {
-            System.out.println("Successful Authentication of: \n" + "User: " + user.name + "\n");
+            System.out.println("Successful Authentication of: \n" + "User: " + user.getName() + "\n");
         } else {
             System.out.println("Authentication canceled");
         }
