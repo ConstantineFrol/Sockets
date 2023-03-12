@@ -58,7 +58,7 @@ public class Messenger extends JFrame {
                 setLocationRelativeTo(null);
                 setVisible(true);
 
-                System.out.println("I am here!");
+                System.out.println("Start @ 66!");
                 startProcess();
 
             } else dispose();
@@ -71,21 +71,22 @@ public class Messenger extends JFrame {
                 String result, input;
 
                 input = textInputField.getText().toString();
-
                 displayMessage(user.getName(), input);
+                textInputField.setText("");
 
                 try {
                     result = helper.getEcho(input);
                 } catch (IOException ex) {
                     throw new RuntimeException(ex);
                 }
+                System.out.println("Message from Server:\t" + result);
+                displayMessage("Server", result);
 
-                displayMessage("Server>", result);
-
-                if (input.equals("end")) {
+                if (input.toLowerCase().equals("end") || input.toLowerCase().equals("quit")) {
                     try {
                         helper.done();
-                    } catch (IOException ex) {
+                        goodbyeBeforeExit("Bye, till next time!");
+                    } catch (IOException | InterruptedException ex) {
                         throw new RuntimeException(ex);
                     }
                 }
@@ -110,7 +111,7 @@ public class Messenger extends JFrame {
                 textArea.setText("");
 
                 message = textInputField.getText();
-                if ((message.trim()).equals(endMessage)) {
+                if ((message).equals(endMessage)) {
                     done = true;
                     helper.done();
                 } else {
@@ -159,10 +160,6 @@ public class Messenger extends JFrame {
 
         String file_data[] = data.split("\\s+");
 
-        System.out.println(file_data.getClass().getName());
-        System.out.println(file_data.getClass().getSimpleName());
-        System.out.println("First:\t" + file_data[0]);
-        System.out.println("last:\t" + file_data[file_data.length - 1]);
         for (int i = 0; i < file_data.length; i++) {
             if (i == 2) continue;
             else {
@@ -248,45 +245,92 @@ public class Messenger extends JFrame {
     }
 
     private void createConnection(String host, String port) throws InterruptedException {
-        String err_message = "";
 
-        String message = err_message + "\n" +
-                "\n\n" +
-                "1.\tTerminate this app, and \n" +
-                "Try to run the Server\n\n" +
-                "2.\tHost name or port number\n" +
-                "was incorrect";
+        String connection_message = user.getName() + " - You are connected";
         try {
             helper = new EchoClientHelper2(host, port);
         } catch (IOException e) {
-            err_message = e.getMessage();
-            System.out.println("Error: " + err_message + "\n");
+            System.out.println("Error: " + e.getMessage());
+        } finally {
+            if (helper == null) {
+                System.out.println("No connection");
+
+                goodbyeBeforeExit("NO CONNECTION !!!\n\na)\tCheck Server\nb)\tHost and Port number was incorrect");
+
+            } else {
+                textArea.replaceSelection(connection_message);
+                System.out.println("Hello:\t" + connection_message);
+            }
         }
-
-//        textInputField.replaceSelection(message);
-        textArea.replaceSelection(message);
-
-        displayMessage("", "If there is no connection try next steps:");
-
-        System.out.println("last one: " + message);
-
-        TimeUnit.SECONDS.sleep(2);
-
+    }
+// TODO FIX HISTORY DISPLAY MESSAGE & WRONG INPUT MESSAGE
+    private void goodbyeBeforeExit(String text) throws InterruptedException {
         textArea.setText("");
+        displayMessage("", text);
+        TimeUnit.SECONDS.sleep(4);
+        for (int i = 3; i > 0; i--) {
+            textArea.setText("");
+            textArea.setText("EXIT IN " + i);
+            try {
+                TimeUnit.SECONDS.sleep(2);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        dispose();
+        System.exit(0);
+    }
 
+
+    private static String prettifyString(String input) {
+        String[] words = input.split("\\s+");
+        StringBuilder sb = new StringBuilder();
+        for (int i = 1; i < words.length; i++) {
+            sb.append(words[i]);
+            if (i < words.length - 1) {
+                if (words[i].equals(":")) sb.append("\n");
+            }
+        }
+        return sb.toString();
     }
 
     private void displayMessage(String actor, String text) {
 
+        String result = "";
+        String message = text;
         textArea.setEditable(true);
 
-//        TODO IF STRING CONTAINS ERROR DO.... ELSE IF CONTAINS HISTORY PRINT BEAUTIFUL WAY, ELSE PRINT NORMAL(LINE 285)
+        if (wordMatch("error", text) == true) {
+            result = prettifyString(text);
+            message = result;
+            System.out.println("Error message to be displayed\n" + result);
+        } else if (wordMatch("help", text) == true) {
+            result = prettifyString(text);
+            message = result;
+            System.out.println("Help message to be displayed\n" + result);
+        } else if (wordMatch("history", text) == true) {
+            result = prettifyString(text);
+            message = result;
+            System.out.println("History message to be displayed\n" + result);
+        }
 
         if (actor == "") {
-            textArea.replaceSelection("Message> " + text + "\n");
-        } else textArea.replaceSelection(actor + "> " + text + "\n");
+            textArea.replaceSelection("> " + message + "\n");
+        } else textArea.replaceSelection(actor + "> " + message + "\n");
 
         textArea.setEditable(false);
+    }
+
+    private static boolean wordMatch(String keyword, String sentence) {
+        String[] words = sentence.split("\\s+");
+        for (String word : words) {
+            if (keyword.equals(word)) {
+                System.out.println("Keyword:\t" + keyword + " Detected in\n" + sentence);
+                return true;
+            }
+        }
+        System.out.println("Keyword:\t" + keyword + " IS NOT Detected in\n" + sentence);
+        return false;
     }
 
     private static int countWords(String filename) throws FileNotFoundException {

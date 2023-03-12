@@ -18,6 +18,7 @@ public class EchoClientHelper2 {
     private MyStreamSocket mySocket;
     private InetAddress serverHost;
     private int serverPort;
+    private String message;
 
     public EchoClientHelper2(String hostName,
                              String portNum) throws SocketException,
@@ -45,4 +46,19 @@ public class EchoClientHelper2 {
         mySocket.sendMessage(endMessage);
         mySocket.close();
     } // end done
+
+//    public boolean checkConnection() {
+//        boolean isConnected = false;
+//
+//        try {
+//            if (mySocket != null && !mySocket.isClosed()) {
+//                isConnected = true;
+//            }
+//        } catch (Exception e) {
+//            System.out.println("ERROR:\t" + e.getMessage());
+//        }
+//
+//        return isConnected;
+//    }
+
 } //end class

@@ -59,6 +59,7 @@
 //    } //end main
 //} // end class
 package test_labs;
+
 import java.net.ServerSocket;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -72,6 +73,8 @@ public class EchoServer2 {
     public static void main(String[] args) {
         int serverPort = 3000;    // default port
         String message;
+        String currentTime = "";
+        ArrayList<String[]> messageHistory = new ArrayList<String[]>();
         ArrayList<String> userData = new ArrayList<>(); // to store user inputs
 
         if (args.length == 1)
@@ -89,8 +92,12 @@ public class EchoServer2 {
                 boolean done = false;
                 while (!done) {
                     message = myDataSocket.receiveMessage();
+
+                    if (message != "") {
+                        currentTime = new SimpleDateFormat("yyyy-MM-dd,HH:mm:ss,").format(new Date());
+                    }
+
                     System.out.println("message received: " + message);
-                    String currentTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
                     userData.add(currentTime + " : " + message); // store the user input along with the time it was received
 
                     if ((message.trim()).equals(endMessage)) {
@@ -98,30 +105,45 @@ public class EchoServer2 {
                         myDataSocket.sendMessage(LAST_MESSAGE);
                         myDataSocket.close();
                         done = true;
-                    } else if (message.toUpperCase().equals("HISTORY")) {
-                        String data = "history: \n";
+                    } else if (message.trim().toUpperCase().equals("HISTORY")) {
+                        String data = "history: ";
                         for (String input : userData) {
-                            data += input + " \n ";
+                            data += input + ", ";
                             myDataSocket.sendMessage(data);
                         }
-                    } else if (message.toUpperCase().equals("HELP")) {
-                        myDataSocket.sendMessage("Available commands:\nHELP, STR FILTER, NUM FILTER, HISTORY, END/QUIT.");
-                    } else if (message.toUpperCase().equals("STR FILTER")) {
+
+                        // split message into date/time and message
+                        String[] parts = message.split(",");
+                        String dateTime = parts[0];
+                        String msg = parts[1];
+                        // add date/time and message to message history
+                        String[] msgWithTime = {dateTime, msg};
+                        messageHistory.add(msgWithTime);
+
+                        System.out.println("HiSTORY SELECTED:\t" + data);
+                    } else if (message.trim().toUpperCase().equals("HELP")) {
+                        userData.add(currentTime + "\t:\t" + message); // store the user input along with the time it was received
+                        myDataSocket.sendMessage("help Available commands: HELP, STR FILTER, NUM FILTER, HISTORY, END/QUIT.");
+                    } else if (message.trim().toUpperCase().equals("STR FILTER")) {
                         myDataSocket.sendMessage("Enter a string containing digits: ");
                         String str = myDataSocket.receiveMessage();
                         String result = removeDigits(str);
+                        userData.add(currentTime + "\t:\t" + message + result); // store the user input along with the time it was received
                         myDataSocket.sendMessage("String with digits removed: " + result);
-                    } else if (message.toUpperCase().equals("NUM FILTER")) {
+                    } else if (message.trim().toUpperCase().equals("NUM FILTER")) {
                         myDataSocket.sendMessage("Enter a string with digits: ");
                         String str = myDataSocket.receiveMessage();
                         String result = getDigits(str);
+                        userData.add(currentTime + "\t:\t" + message + result); // store the user input along with the time it was received
                         myDataSocket.sendMessage("Digits from the string: " + result);
-                    } else if (message.toUpperCase().contains("end") || message.contains("quit")) {
+                    } else if (message.trim().toUpperCase().contains("end") || message.contains("quit")) {
                         myDataSocket.sendMessage("Session over.");
                         myDataSocket.close();
                         done = true;
                     } else {
-                        myDataSocket.sendMessage("error: No such command. Available commands:\nSTR FILTER, NUM FILTER, HISTORY, END/QUIT.");
+                        userData.add(currentTime + ",Wrong input:," + message); // store the user input along with the time it was received
+                        myDataSocket.sendMessage("error,No,such,command.,Available,commands:,HELP,STR.FILTER,NUM.FILTER,HISTORY,END/QUIT");
+
                     }
                 }
             }
