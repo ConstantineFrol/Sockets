@@ -123,7 +123,7 @@ public class EchoServer2 {
                         System.out.println("HiSTORY SELECTED:\t" + data);
                     } else if (message.trim().toUpperCase().equals("HELP")) {
                         userData.add(currentTime + "\t:\t" + message); // store the user input along with the time it was received
-                        myDataSocket.sendMessage("help Available commands: HELP, STR FILTER, NUM FILTER, HISTORY, END/QUIT.");
+                        myDataSocket.sendMessage("help Available,commands: HELP, STR FILTER, NUM FILTER, HISTORY, END/QUIT.");
                     } else if (message.trim().toUpperCase().equals("STR FILTER")) {
                         myDataSocket.sendMessage("Enter a string containing digits: ");
                         String str = myDataSocket.receiveMessage();
@@ -142,7 +142,7 @@ public class EchoServer2 {
                         done = true;
                     } else {
                         userData.add(currentTime + ",Wrong input:," + message); // store the user input along with the time it was received
-                        myDataSocket.sendMessage("error,No,such,command.,Available,commands:,HELP,STR.FILTER,NUM.FILTER,HISTORY,END/QUIT");
+                        myDataSocket.sendMessage("error No,such,command,type:,HELP,for,help");
 
                     }
                 }

@@ -246,7 +246,7 @@ public class Messenger extends JFrame {
 
     private void createConnection(String host, String port) throws InterruptedException {
 
-        String connection_message = user.getName() + " - You are connected";
+        String connection_message = "\n" + user.getName() + " - You are connected";
         try {
             helper = new EchoClientHelper2(host, port);
         } catch (IOException e) {
@@ -263,10 +263,11 @@ public class Messenger extends JFrame {
             }
         }
     }
-// TODO FIX HISTORY DISPLAY MESSAGE & WRONG INPUT MESSAGE
+
+    // TODO FIX HISTORY DISPLAY MESSAGE & WRONG INPUT MESSAGE
     private void goodbyeBeforeExit(String text) throws InterruptedException {
         textArea.setText("");
-        displayMessage("", text);
+        displayMessage("System", text);
         TimeUnit.SECONDS.sleep(4);
         for (int i = 3; i > 0; i--) {
             textArea.setText("");
@@ -288,7 +289,7 @@ public class Messenger extends JFrame {
         for (int i = 1; i < words.length; i++) {
             sb.append(words[i]);
             if (i < words.length - 1) {
-                if (words[i].equals(":")) sb.append("\n");
+                if (words[i].equals(",")) sb.append(" ");
             }
         }
         return sb.toString();
@@ -325,11 +326,11 @@ public class Messenger extends JFrame {
         String[] words = sentence.split("\\s+");
         for (String word : words) {
             if (keyword.equals(word)) {
-                System.out.println("Keyword:\t" + keyword + " Detected in\n" + sentence);
+                System.out.println("Keyword:\t" + keyword + " Detected in:\t" + sentence);
                 return true;
             }
         }
-        System.out.println("Keyword:\t" + keyword + " IS NOT Detected in\n" + sentence);
+        System.out.println("Keyword:\t" + keyword + " Is NOT Detected in:\t" + sentence);
         return false;
     }
 
